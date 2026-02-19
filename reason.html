@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Maintenance</title>
+
+<style>
+body {
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:white;
+  color:black;
+  overflow:hidden;
+}
+
+header {
+  padding:20px;
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+#grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,100px);
+  gap:10px;
+  padding:20px;
+}
+
+button {
+  width:100px;
+  height:100px;
+  border:0;
+  background:none;
+  cursor:pointer;
+  transition:transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+button:hover {
+  transform:scale(1.15);
+  box-shadow:0 0 15px rgba(0,0,0,0.3);
+}
+
+@keyframes pulse {
+  0% { transform:scale(1); }
+  50% { transform:scale(1.25); }
+  100% { transform:scale(1); }
+}
+
+.activePulse {
+  animation:pulse 0.25s ease-out;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>Sorry! We are down for maintenance.</h2>
+  <p>We'll be back soon.</p>
+</header>
+
+<div id="grid"></div>
+
+<script>
+// ---------------------------
+// SIMPLE 8-BIT AUDIO ENGINE
+// ---------------------------
+let audio = null;
+
+function play(freq) {
+  if (!audio) {
+    audio = new (window.AudioContext || window.webkitAudioContext)();
+  }
+
+  const osc = audio.createOscillator();
+  const gain = audio.createGain();
+
+  osc.type = "square"; // 8-bit style
+  osc.frequency.value = freq;
+
+  gain.gain.value = 0.15;
+
+  osc.connect(gain);
+  gain.connect(audio.destination);
+
+  osc.start();
+  osc.stop(audio.currentTime + 0.15);
+}
+
+// ---------------------------
+// INLINE SVG REASON CUBE ICONS
+// ---------------------------
+
+const idleSVG = `
+<svg width="80" height="80" viewBox="0 0 100 100">
+  <polygon points="50,10 85,30 50,50 15,30" fill="#c8c8c8"/>
+  <polygon points="15,30 50,50 50,90 15,70" fill="#a0a0a0"/>
+  <polygon points="85,30 50,50 50,90 85,70" fill="#888"/>
+</svg>`;
+
+const activeSVG = `
+<svg width="80" height="80" viewBox="0 0 100 100">
+  <polygon points="50,10 85,30 50,50 15,30" fill="#ff8a00"/>
+  <polygon points="15,30 50,50 50,90 15,70" fill="#e06a00"/>
+  <polygon points="85,30 50,50 50,90 85,70" fill="#cc5500"/>
+</svg>`;
+
+// ---------------------------
+// BUILD GRID
+// ---------------------------
+const grid = document.getElementById("grid");
+const TOTAL = 36;
+
+// 10 simple 8-bit frequencies
+const freqs = [
+  220, 247, 262, 294, 330,
+  349, 392, 440, 494, 523
+];
+
+for (let i = 0; i < TOTAL; i++) {
+  const btn = document.createElement("button");
+
+  btn.innerHTML = idleSVG;
+
+  const freq = freqs[i % freqs.length];
+
+  btn.onclick = () => {
+    btn.innerHTML = activeSVG;
+    btn.classList.add("activePulse");
+
+    play(freq);
+
+    setTimeout(() => {
+      btn.innerHTML = idleSVG;
+      btn.classList.remove("activePulse");
+    }, 200);
+  };
+
+  grid.appendChild(btn);
+}
+</script>
+
+</body>
+</html>
